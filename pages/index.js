@@ -18,7 +18,6 @@ export default function Home() {
 
   const onReaderLoad = (event) => {
     var obj = JSON.parse(event.target.result);    
-    console.log(obj);
     setData(obj)
   }
 
