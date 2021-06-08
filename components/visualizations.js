@@ -1,6 +1,6 @@
 import React from 'react';
 import Graph from "react-graph-vis";
-import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryBoxPlot } from 'victory';
+import { VictoryChart, VictoryLine, VictoryAxis, VictoryScatter, VictoryBoxPlot } from 'victory';
 
 const options = {
   layout: {
@@ -22,6 +22,10 @@ export default function Visualizations(data) {
 
   let lineData = getNoOfVisits(edges);
   let boxData = getAverageVisitDuration(nodes, edges);
+  let markedData = getUsageByDayStash(data.data.stashUsage, true);
+  let namedData = getUsageByDayStash(data.data.stashUsage, false);
+  let highlightData = getUsageByDay(data.data.highlightUsage);
+  let searchData = getUsageByDay(data.data.searchUsage);
   return (
     <div style={{display:"flex", flowWrap:"wrap", padding:"100px", width:"90%", minHeight:"500px"}}>
       <div style={{width:"400px"}}>
@@ -29,6 +33,10 @@ export default function Visualizations(data) {
       </div>
       {createLineChart(lineData, "Number of Visits", "Number of Pages")}
       {createBoxChart(boxData, "Page Visit Durations (sec)")}
+      {createFeatureUsage(markedData, "Marked Groups used")}
+      {createFeatureUsage(namedData, "Named Groups used")}
+      {createFeatureUsage(highlightData, "Highlight opened")}
+      {createFeatureUsage(searchData, "Search used")}
     </div>
   )
 }
@@ -43,9 +51,7 @@ function getNoOfVisits(edges) {
     sums[value] = (sums[value] || 0) + 1;
     return sums;
   },{}); // how often does a visit count appear "visitCount: pageCount"
-  console.log(lineData)
   let xyData = Object.keys(lineData).map(key => { return { x: key, y: lineData[key] }; });
-  console.log(xyData)
   return xyData;
 }
 
@@ -77,10 +83,35 @@ function getAverageVisitDuration(nodes, edges) {
   return visitDurations.sort().map(dur => {return {"x": 1, "y": dur}})
 }
 
+function getUsageByDayStash(usageData, colors) {
+  const data = usageData.filter(use => colors ? use['name'].startsWith('#') : !use['name'].startsWith('#'))
+  return getUsageByDay(data)
+}
+
+function getUsageByDay(usageData) {
+  let data = usageData.map(groupday).reduce((prev, curr) => { 
+    Object.keys(curr).forEach((key) => prev[key] = (prev[key] || 0) + 1) 
+    return prev}, {}
+  )
+  const minDay = Object.keys(data).reduce((prev, curr) => curr < prev ? curr : prev, 9999999)
+  data = Object.keys(data).map((key) => {return{x: key-(minDay-1), y: data[key]}})
+  return data
+}
+
+function groupday(value, index, array){
+  let byday={};
+  let d = new Date(value['time']);
+  d = Math.floor(d.getTime()/(1000*60*60*24));
+  byday[d]=byday[d]||[];
+  byday[d].push(value);
+  return byday
+}
+
 function createLineChart(data, xlabel, ylabel) {
   return (
     <div style={{width:"400px"}}>
-      Number of Pages per Number of Visits
+      x: number of pages, y: number of visits
+      x pages have been visited y times
       <VictoryChart>
         <VictoryLine
           data={data}
@@ -106,7 +137,7 @@ function createLineChart(data, xlabel, ylabel) {
 function createBoxChart(data, label) {
   return (
     <div style={{width:"400px"}}>
-      Average Visit Time:
+      Average visit time per page:
       <VictoryChart>
         <VictoryBoxPlot
           boxWidth={20}
@@ -118,6 +149,24 @@ function createBoxChart(data, label) {
           style={{
             axisLabel: {padding: 30},
           }}
+        />
+      </VictoryChart>
+    </div>
+  )
+}
+
+function createFeatureUsage(data, label) {
+  return (
+    <div style={{width:"400px"}}>
+      Average visit time per page:
+      <VictoryChart
+        domain={{ x: [0, 5], y: [0, 20] }}
+      >
+        <VictoryScatter
+          style={{ data: { fill: "#c43a31" } }}
+          size={7}
+          boxWidth={20}
+          data={data}
         />
       </VictoryChart>
     </div>
