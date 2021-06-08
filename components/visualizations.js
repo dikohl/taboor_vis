@@ -93,7 +93,7 @@ function getUsageByDay(usageData) {
     Object.keys(curr).forEach((key) => prev[key] = (prev[key] || 0) + 1) 
     return prev}, {}
   )
-  const minDay = Object.keys(data).reduce((prev, curr) => curr < prev ? curr : prev, 9999999)
+  const minDay = Object.keys(data).reduce((prev, curr) => curr < prev ? curr : prev, Number.MAX_VALUE)
   data = Object.keys(data).map((key) => {return{x: key-(minDay-1), y: data[key]}})
   return data
 }
