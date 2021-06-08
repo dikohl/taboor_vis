@@ -27,7 +27,7 @@ export default function Visualizations(data) {
   let highlightData = getUsageByDay(data.data.highlightUsage);
   let searchData = getUsageByDay(data.data.searchUsage);
   return (
-    <div style={{display:"flex", flowWrap:"wrap", padding:"100px", width:"90%", minHeight:"500px"}}>
+    <div style={{display:"flex", flexWrap:"wrap", padding:"100px", width:"90%", minHeight:"500px"}}>
       <div style={{width:"600"}}>
         <Graph graph={{nodes, edges}} options={options}/>
       </div>
