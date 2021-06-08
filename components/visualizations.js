@@ -9,7 +9,7 @@ const options = {
   edges: {
     color: "#000000"
   },
-  height: "400px"
+  height: "600px"
 };
 
 export default function Visualizations(data) {
@@ -28,7 +28,7 @@ export default function Visualizations(data) {
   let searchData = getUsageByDay(data.data.searchUsage);
   return (
     <div style={{display:"flex", flowWrap:"wrap", padding:"100px", width:"90%", minHeight:"500px"}}>
-      <div style={{width:"400px"}}>
+      <div style={{width:"600"}}>
         <Graph graph={{nodes, edges}} options={options}/>
       </div>
       {createLineChart(lineData, "Number of Visits", "Number of Pages")}
@@ -109,7 +109,7 @@ function groupday(value, index, array){
 
 function createLineChart(data, xlabel, ylabel) {
   return (
-    <div style={{width:"400px"}}>
+    <div style={{width:"600px"}}>
       x: number of pages, y: number of visits
       x pages have been visited y times
       <VictoryChart>
@@ -136,7 +136,7 @@ function createLineChart(data, xlabel, ylabel) {
 
 function createBoxChart(data, label) {
   return (
-    <div style={{width:"400px"}}>
+    <div style={{width:"600px"}}>
       Average visit time per page:
       <VictoryChart>
         <VictoryBoxPlot
@@ -157,8 +157,8 @@ function createBoxChart(data, label) {
 
 function createFeatureUsage(data, label) {
   return (
-    <div style={{width:"400px"}}>
-      Average visit time per page:
+    <div style={{width:"600px"}}>
+      {label}
       <VictoryChart
         domain={{ x: [0, 5], y: [0, 20] }}
       >
