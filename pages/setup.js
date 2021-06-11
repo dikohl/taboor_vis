@@ -22,6 +22,15 @@ export default function Setup() {
               <li>Go to "chrome://extensions" in your browser</li>
               <li>Enable "Developer mode" in the top right</li>
               <li>Drag and Drop the zip file in to the browser</li>
+              <li>Open a new tab and go to a webpage of your choice</li>
+              <li>There should now be a grey button on the bottom left of the screen</li>
+              <li>If the sidebar does not open when you click the button:</li>
+              <ol>
+                <li>Go back to "edge://extensions"</li>
+                <li>Reload the extension by clicking the arrow going in a circle on the bottom left of the extensions</li>
+                <li>Go back to the webpage</li>
+                <li>Refresh the webpage (F5)</li>
+              </ol>
             </ol>
           </div>
           <div>
@@ -31,6 +40,15 @@ export default function Setup() {
               <li>Go to "edge://extensions" in your browser</li>
               <li>Enable "Developer mode" in the bottom left</li>
               <li>Drag and Drop the downloaded zip file in to the browser</li>
+              <li>Open a new tab and go to a webpage of your choice</li>
+              <li>There should now be a grey button on the bottom left of the screen</li>
+              <li>If the sidebar does not open when you click the button:</li>
+              <ol>
+                <li>Go back to "edge://extensions"</li>
+                <li>Reload the extension by clicking the arrow going in a circle on the bottom left of the extensions</li>
+                <li>Go back to the webpage</li>
+                <li>Refresh the webpage (F5)</li>
+              </ol>
             </ol>
           </div>
           <div>
@@ -50,6 +68,7 @@ export default function Setup() {
               <li>In deinem Browser besuche "chrome://extensions".</li>
               <li>Aktiviere den "Entwicklermodus" oben rechts auf der Seite.</li>
               <li>Ziehe die heruntergeladene Datei auf die Seite.</li>
+              <li>Etwa 10 Sekunden warten bis die Extension installiert ist</li>
             </ol>
           </div>
           <div>
