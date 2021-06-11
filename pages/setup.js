@@ -27,7 +27,7 @@ export default function Setup() {
               <li>If the sidebar does not open when you click the button:</li>
               <ol>
                 <li>Go back to "edge://extensions"</li>
-                <li>Reload the extension by clicking the arrow going in a circle on the bottom left of the extensions</li>
+                <li>Reload the extension by clicking the arrow going in a circle on the bottom right of the extension's name</li>
                 <li>Go back to the webpage</li>
                 <li>Refresh the webpage (F5)</li>
               </ol>
@@ -45,7 +45,7 @@ export default function Setup() {
               <li>If the sidebar does not open when you click the button:</li>
               <ol>
                 <li>Go back to "edge://extensions"</li>
-                <li>Reload the extension by clicking the arrow going in a circle on the bottom left of the extensions</li>
+                <li>Reload the extension by clicking the Reload below the extension's name</li>
                 <li>Go back to the webpage</li>
                 <li>Refresh the webpage (F5)</li>
               </ol>
