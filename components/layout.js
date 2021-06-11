@@ -6,7 +6,7 @@ export default function Layout(props) {
             <div>
               <a href="/setup"><u>Setup</u></a>&nbsp;&nbsp;
               <a href="/tutorial"><u>Tutorial</u></a>&nbsp;&nbsp;
-              <a href="/cheatsheet"><u>Cheatsheet</u></a>&nbsp;&nbsp;
+              <a href='/taboor_cheatsheet.pdf' download><u>Cheatsheet</u></a>&nbsp;&nbsp;
             </div>
             {props.children}
           </div>
