@@ -7,7 +7,7 @@ export default function Tutorial() {
 
   return (
     <Layout>
-      <div className={styles.container}>
+      <div className={styles.main}>
         <h1>Taboor - Szenarios</h1>
         <div>
           <button onClick={() => setLanguage('en')}>Englisch</button>

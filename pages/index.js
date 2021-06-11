@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import styles from '../styles/Home.module.css'
 import Visualizations from '../components/visualizations'
+import Layout from '../components/layout'
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState()
@@ -22,12 +23,15 @@ export default function Home() {
   }
 
   return (
-    <div className={styles.container}>
-      <input type="file" name="file" accept=".json" onChange={changeHandler} />
-			<div>
-				<button onClick={handleSubmission}>Submit</button>
-			</div>
-      <Visualizations data={data} />
-    </div>
+    <Layout>
+      <div className={styles.main}>
+        <h1>Taboor - Visualization</h1>
+        <input type="file" name="file" accept=".json" onChange={changeHandler} />
+        <div>
+          <button onClick={handleSubmission}>Submit</button>
+        </div>
+        <Visualizations data={data} />
+      </div>
+    </Layout>
   )
 }
