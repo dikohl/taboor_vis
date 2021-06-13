@@ -66,7 +66,6 @@ function getAverageVisitDuration(nodes, edges) {
     let enterDate = 0
     const visitDurations = []
     accesses
-      .map((date) => Date.parse(date))
       .sort((a, b) => a - b)
       .forEach((date) => {
         if (enterDate === 0) {
