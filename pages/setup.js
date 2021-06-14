@@ -26,7 +26,7 @@ export default function Setup() {
               <li>There should now be a grey button on the bottom left of the screen</li>
               <li>If the sidebar does not open when you click the button, restart the browser OR:</li>
               <ol>
-                <li>Go back to "edge://extensions"</li>
+                <li>Go back to "chrome://extensions"</li>
                 <li>Reload the extension by clicking the arrow going in a circle on the bottom right of the extension's name</li>
                 <li>Go back to the webpage</li>
                 <li>Refresh the webpage (F5)</li>
