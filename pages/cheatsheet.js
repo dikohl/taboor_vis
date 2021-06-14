@@ -8,7 +8,7 @@ export default function CheatSheet() {
     <Layout>
       <div className={styles.main}>
         <h1>Taboor - Installation</h1>
-        <img src="/taboor.jpg" />
+        <img src="/taboor.jpg" size="80%" />
       </div>
     </Layout>
   )
