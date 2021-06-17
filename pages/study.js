@@ -12,13 +12,13 @@ export default function CheatSheet() {
           <div>
             <p><b>What is taboor:</b></p>
             <p>
-              Taboor is meant to help you organize your tabs simply from a sidebar that you can easily hide / show by clicking the grey button in the bottom left. 
+              Taboor is meant to help you organize your tabs simply from a sidebar that you can hide / show by clicking the grey button in the bottom left. 
             </p>
             <p>
-              Through out the work day, many different task can happen at the same time and every task may need a few tabs in a browser. To not lose information that may be needed later in the day or in the next few days, many people just keep tabs open. This has the effect, that it becomes harder to keep an overview over all the open web pages and to what task they belong to.
+              Through out the work day, many different tasks can happen at the same time and every task you may need to visit multiple sites to complete it. Often people just keep tabs from many different tasks open for later use and to not lose any information. This makes it harder to keep an overview and requires a lot of energy to manage.
             </p>
             <p>
-              Taboor tries to provide you with functionality to make organizing tabs and re-finding tabs easier. This way closing a tabs comes with a smaller risk of losing information and less cognitive energy needed to resume a task and re-find relevant web pages to complete it.
+              Taboor tries to provide you with functionality to make organizing tabs, re-finding tabs easier and to minimize the risk of you losing information. 
             </p>
           </div>
           <div>
