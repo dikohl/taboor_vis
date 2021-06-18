@@ -10,8 +10,8 @@ export default function Setup() {
       <div className={styles.main}>
         <h1>Taboor - Installation</h1>
         <div>
-          <button onClick={() => setLanguage('en')}>Englisch</button>
-          <button onClick={() => setLanguage('de')}>Deutsch</button>
+          <button onClick={() => window.location.href='/setup'}>English</button>
+          <button onClick={() => window.location.href='/de/setup'}>Deutsch</button>
         </div>
         {language === 'en' ?
         <div>

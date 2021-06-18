@@ -8,6 +8,10 @@ export default function CheatSheet() {
     <Layout>
       <div className={styles.main}>
         <h1>Taboor - Study</h1>
+        <div>
+          <button onClick={() => window.location.href='/study'}>English</button>
+          <button onClick={() => window.location.href='/de/study'}>Deutsch</button>
+        </div>
         <div className={styles.center}>
           <div>
             <p><b>What is taboor:</b></p>
