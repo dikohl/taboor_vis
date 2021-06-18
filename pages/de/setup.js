@@ -16,14 +16,14 @@ export default function Setup() {
             <h3>Chrome:</h3>
             <ol>
               <li><a href='/taboor.zip' download>Klicke <u>hier</u> um die Extension herunter zu laden</a></li>
-              <li>Gehe zu "chrome://extensions" in deinem Browser</li>
+              <li>Gehe auf "chrome://extensions" in deinem Browser</li>
               <li>Aktiviere den "Entwicklermodus" oben rechts</li>
               <li>Ziehe die zip Datei in den Browser</li>
               <li>Öffne einen neuen Tab und gehe auf irgendeine Website</li>
               <li>Jetzt sollte unten links ein grauer Knopf angezeigt werden</li>
               <li>Wenn sich die Sidebar nicht öffnet wenn du den Knopf klickst, starte bitte deinen Browser neu ODER:</li>
               <ol>
-                <li>Geher wieder zu "chrome://extensions"</li>
+                <li>Gehe wieder auf "chrome://extensions"</li>
                 <li>Lade die Extension neu in dem du den runden Pfeil unten rechts bei der Extension klickst</li>
                 <li>Gehe wieder auf die Webpage von vorhin</li>
                 <li>Lade die Webpage neu (F5)</li>
@@ -34,14 +34,14 @@ export default function Setup() {
             <h3>Edge:</h3>
             <ol>
               <li><a href='/taboor.zip' download>Klicke <u>hier</u> um die Extension herunter zu laden</a></li>
-              <li>Gehe zu "edge://extensions" in deinem Browser</li>
+              <li>Gehe auf "edge://extensions" in deinem Browser</li>
               <li>Aktiviere den "Entwicklermodus" oben rechts</li>
               <li>Ziehe die zip Datei in den Browser</li>
               <li>Öffne einen neuen Tab und gehe auf irgendeine Website</li>
               <li>Jetzt sollte unten links ein grauer Knopf angezeigt werden</li>
               <li>Wenn sich die Sidebar nicht öffnet wenn du den Knopf klickst, starte bitte deinen Browser neu ODER:</li>
               <ol>
-                <li>Geher wieder zu "edge://extensions"</li>
+                <li>Geher wieder auf "edge://extensions"</li>
                 <li>Lade die Extension neu in dem du "Neu laden" unter der Extension klickst</li>
                 <li>Gehe wieder auf die Webpage von vorhin</li>
                 <li>Lade die Webpage neu (F5)</li>
