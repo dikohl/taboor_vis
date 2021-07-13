@@ -130,7 +130,7 @@ function getAverageVisitDuration(nodes, edges) {
           }
           seenOtherThanFriday = true
           const visit = date - enterDate
-          if (day !== 6 && day !== 0 && visit < 1800000 && visit > 1000) {
+          if (day !== 6 && day !== 0 && visit < 1800000) {
             // less than 30 minutes (after 30 min without a switch we assume you're afk) and longer than 1 second (mistake)
             if (visitDurations[day]) {
               visitDurations[day].push(visit)
