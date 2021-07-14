@@ -36,59 +36,105 @@ export default function Visualizations(data) {
   let edges = data.data.edges.map(edge => { return {from: edge.source, to: edge.target, access: edge.access} })
   let edgesGraph = edges.filter(edge => (edge.from !== 0 && edge.to !== 0))
 
-  let lineData = getNoOfVisits(edges);
-  
-  let { results: visitData, raw } = getAverageVisitDuration(nodes, edges);
+  const browserTime = getDailyBrowserTime(edges)
+  let { normTotal, raw: visits }  = getNoOfVisits(edges);
+  let { openTabs, raw: rawTabs } = getAverageTabNumber(data.data.numOpenPages);
+
+  let { results: visitData, raw: rawDuration } = getAverageVisitDuration(nodes, edges, browserTime);
   let averageVisits = visitData.map(visit => {return {x: visit.x, y: Math.round(visit.average/1000)}})
   let medianVisits = visitData.map(visit => {return {x: visit.x, y: Math.round(visit.median/1000)}})
   let failVisits = visitData.map(visit => {return {x: visit.x, y: visit.fails}})
-  let scatterData = Object.values(raw).flat().map(r => {return {x: 1, y: Math.round(r/1000)}})
+  let scatterData = Object.values(rawDuration).flat().map(r => {return {x: 1, y: Math.round(r/1000)}})
   
-  let openTabs = getAverageTabNumber(data.data.numOpenPages);
   let averageTabs = openTabs.map(visit => {return {x: visit.x, y: visit.average}})
   let medianTabs = openTabs.map(visit => {return {x: visit.x, y: visit.median}})
   let minTabs = openTabs.map(visit => {return {x: visit.x, y: visit.min}})
   let maxTabs = openTabs.map(visit => {return {x: visit.x, y: visit.max}})
-  let resetTabs = openTabs.map(visit => {return {x: visit.x, y: visit.resets}})
+  let resetTabs = openTabs.map(visit => {return {x: visit.x, y: visit.resets.length}})
+  console.log(rawTabs)
+  let hourlyTabs = Object.keys(rawTabs[3]).map(key => {return {x: key, y: Math.round((rawTabs[3][key].reduce((prev, curr) => prev + curr, 0)/rawTabs[3][key].length) * 10) / 10 }})
 
-  let switchesPerDay = getDailyPageSwitches(nodes, edges);
+  let switchesPerDay = getDailyPageSwitches(nodes, edges, browserTime);
+  let normalizedSwitchesDay = switchesPerDay.map(visit => {return {x: visit.x, y: visit.normalized}})
 
-  let switchesPerHour = getAveragePageSwitchesHourly(nodes, edges)
+  let { switchesPerHour, raw: rawSwitches} = getAveragePageSwitchesHourly(nodes, edges)
   let averageSwitches = switchesPerHour.map(visit => {return {x: visit.x, y: visit.average}})
   let medianSwitches = switchesPerHour.map(visit => {return {x: visit.x, y: visit.median}})
   let minSwitches = switchesPerHour.map(visit => {return {x: visit.x, y: visit.min}})
   let maxSwitches = switchesPerHour.map(visit => {return {x: visit.x, y: visit.max}})
+  console.log(rawSwitches)
 
   let markedData = getUsageByDayStash(data.data.stashUsage, true);
   let namedData = getUsageByDayStash(data.data.stashUsage, false);
   let highlightData = getUsageByDay(data.data.highlightUsage);
   let searchData = getUsageByDay(data.data.searchUsage);
   return (
-    <div style={{display:"flex", flexWrap:"wrap", padding:"100px", width:"90%", minHeight:"500px"}}>
-      <div style={{width:"600"}}>
-        <Graph graph={{nodes: nodesGraph, edges: edgesGraph}} options={options}/>
+    <div>
+      <div style={{display:"flex", flexWrap:"wrap", padding:"100px", width:"90%", minHeight:"500px"}}>
+        {"Mon: " + Math.round(browserTime[1]/60000) + "min; "}
+        {"Tue: " + Math.round(browserTime[2]/60000) + "min; "}
+        {"Wed: " + Math.round(browserTime[3]/60000) + "min; "}
+        {"Thu: " + Math.round(browserTime[4]/60000) + "min; "}
+        {"Fri: " + Math.round(browserTime[5]/60000) + "min "}
+        {createLineChart(visits, "Number of Visits", "Number of Pages")}
+        {createLineChart(normTotal, "Number of Visits", "Portion of all visited Pages")}
       </div>
-      {createLineChart(lineData, "Number of Visits", "Number of Pages")}
-      {createScatterChart(scatterData)}
-      {createLineChart(averageVisits, "Day", "Average visit duration (s)")}
-      {createLineChart(medianVisits, "Day", "Median visit duration (s)")}
-      {createLineChart(failVisits, "Day", "Fail visits (duration < 1s)")}
-      {createLineChart(averageTabs, "Day", "Average Tabs")}
-      {createLineChart(medianTabs, "Day", "Median Tabs")}
-      {createLineChart(minTabs, "Day", "Min Tabs")}
-      {createLineChart(maxTabs, "Day", "Max Tabs")}
-      {createLineChart(resetTabs, "Day", "Tab Resets")}
-      {createLineChart(switchesPerDay, "Day", "Switches")}
-      {createLineChart(averageSwitches, "Day", "Average Switches Per Hour")}
-      {createLineChart(medianSwitches, "Day", "Median Switches Per Hours")}
-      {createLineChart(minSwitches, "Day", "Min Switches Per Hours")}
-      {createLineChart(maxSwitches, "Day", "Max Switches Per Hours")}
-      {createFeatureUsage(markedData, "Marked Groups used")}
-      {createFeatureUsage(namedData, "Named Groups used")}
-      {createFeatureUsage(highlightData, "Highlight opened")}
-      {createFeatureUsage(searchData, "Search used")}
+      <div style={{display:"flex", flexWrap:"wrap", padding:"100px", width:"90%", minHeight:"500px"}}>
+        {"Mon: " + Math.round(browserTime[1]/60000) + "min; "}
+        {"Tue: " + Math.round(browserTime[2]/60000) + "min; "}
+        {"Wed: " + Math.round(browserTime[3]/60000) + "min; "}
+        {"Thu: " + Math.round(browserTime[4]/60000) + "min; "}
+        {"Fri: " + Math.round(browserTime[5]/60000) + "min "}
+        <div style={{width:"600"}}>
+          <Graph graph={{nodes: nodesGraph, edges: edgesGraph}} options={options}/>
+        </div>
+        {createLineChart(visits, "Number of Visits", "Number of Pages")}
+        {createScatterChart(scatterData)}
+        {createLineChart(averageVisits, "Day", "Average visit duration (s)")}
+        {createLineChart(medianVisits, "Day", "Median visit duration (s)")}
+        {createLineChart(failVisits, "Day", "Fail visits (duration < 1s)")}
+        {createLineChart(averageTabs, "Day", "Average Tabs")}
+        {createLineChart(medianTabs, "Day", "Median Tabs")}
+        {createLineChart(minTabs, "Day", "Min Tabs")}
+        {createLineChart(maxTabs, "Day", "Max Tabs")}
+        {createLineChart(resetTabs, "Day", "Tab Resets")}
+        {createLineChart(hourlyTabs, "Hours", "Tabs")}
+        {createLineChart(switchesPerDay, "Day", "Switches")}
+        {createLineChart(normalizedSwitchesDay, "Day", "Switches Per Workminute")}
+        {createLineChart(averageSwitches, "Day", "Average Switches Per Hour")}
+        {createLineChart(medianSwitches, "Day", "Median Switches Per Hours")}
+        {createLineChart(minSwitches, "Day", "Min Switches Per Hours")}
+        {createLineChart(maxSwitches, "Day", "Max Switches Per Hours")}
+        {createFeatureUsage(markedData, "Marked Groups used")}
+        {createFeatureUsage(namedData, "Named Groups used")}
+        {createFeatureUsage(highlightData, "Highlight opened")}
+        {createFeatureUsage(searchData, "Search used")}
+      </div>
     </div>
   )
+}
+
+function getDailyBrowserTime(edges) {
+  const singleAccess = edges.map(edge => {
+      return edge.access.map((time) => {
+        return {from: edge.from, to: edge.to, time: time}
+      })
+    })
+    .flat()
+    .sort((a, b) => a.time - b.time)
+  let dailyTime = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+  let lastTime = 0 
+  singleAccess.forEach(access => {
+    if (lastTime !== 0 && access.from !== 0) {
+      const time = access.time - lastTime
+      if (time < 3600000) {
+        const day = new Date(access.time).getDay()
+        dailyTime[day] = dailyTime[day] + time
+      }
+    }
+    lastTime = access.time
+  })
+  return dailyTime
 }
 
 function getNoOfVisits(edges) {
@@ -101,11 +147,15 @@ function getNoOfVisits(edges) {
     sums[value] = (sums[value] || 0) + 1;
     return sums;
   },{}); // how often does a visit count appear "visitCount: pageCount"
-  let xyData = Object.keys(lineData).map(key => { return { x: key, y: lineData[key] }; });
-  return xyData;
+
+  let totalVisits = Object.keys(lineData).reduce((prev, currKey) => prev + (lineData[currKey]), 0)
+
+  let raw = Object.keys(lineData).map(key => { return { x: key, y: lineData[key] } })
+  let normTotal = Object.keys(lineData).map(key => { return { x: key, y: Math.round(lineData[key]/totalVisits*1000)/1000 } })
+  return { normTotal, raw }
 }
 
-function getAverageVisitDuration(nodes, edges) {
+function getAverageVisitDuration(nodes, edges, browserTime) {
   let nodeAccesses = nodes
                 .filter(node => node.id !== 0)
                 .map(node => 
@@ -150,6 +200,9 @@ function getAverageVisitDuration(nodes, edges) {
       })
     }
   )
+
+  let totalBrowserTime = Object.keys(browserTime).reduce((prev, currKey) => prev + browserTime[currKey], 0)/3600000
+
   let day = 0;
   const dailyAverages = Object.keys(visitDurations).map((key) => {
     day++
@@ -174,19 +227,25 @@ function getAverageTabNumber(openTabs) { // time = date ms, id = number of tabs
       return // we remove all data from last week
     }
     seenOtherThanFriday = true
-    // since the number of open tabs is logged every time an action is performed in the browser we clean up the data by requiring at least 1 minute between logs. (polling rate of one minute)
-    if (day !== 6 && day !== 0 && openTab.id > 0 && openTab.time - lastTime > 60000) {
-      if (numTabs[day]) {
-        numTabs[day].push(openTab.id)
+    const hour = new Date(openTab.time).getHours()
+    const minutes = hour * 60 + new Date(openTab.time).getMinutes()
+    console.log(minutes)
+    // since the number of open tabs is logged every time an action is performed in the browser we clean up the data by requiring at least 1 second between logs.
+    if (day !== 6 && day !== 0 && openTab.id > 0 && openTab.time - lastTime > 1000) {
+      if (numTabs[day] && numTabs[day][minutes]) {
+        numTabs[day][minutes].push(openTab.id)
       } else {
-        numTabs[day] = [openTab.id]
+        if (!numTabs[day]) {
+          numTabs[day] = {}
+        }
+        numTabs[day][minutes] = [openTab.id]
       }
 
       if (openTab.id < 4) {
         if (tabsReset[day]) {
-          tabsReset[day]++
+          tabsReset[day].push(openTab.time)
         } else {
-          tabsReset[day] = 1
+          tabsReset[day] = [openTab.time]
         }
       }
     }
@@ -196,7 +255,7 @@ function getAverageTabNumber(openTabs) { // time = date ms, id = number of tabs
   let day = 0;
   const dailyAverages = Object.keys(numTabs).map((key) => {
     day++
-    const sorted = numTabs[key].sort((a, b) => a-b)
+    const sorted = Object.values(numTabs[key]).flat().sort((a, b) => a-b)
     const duration = sorted.reduce((prev, curr) => prev + curr, 0)
     length = sorted.length
     let half = Math.floor(length / 2)
@@ -204,16 +263,16 @@ function getAverageTabNumber(openTabs) { // time = date ms, id = number of tabs
     const average = Math.round((duration / length) * 10) / 10
     return { x: key, average, median, min: sorted[0], max: sorted[length-1], resets: tabsReset[key] }
   })
-  return dailyAverages
+  return { openTabs: dailyAverages, raw: numTabs }
 }
 
-function getDailyPageSwitches(nodes, edges) {
+function getDailyPageSwitches(nodes, edges, workHours) {
   let switches = edges
                       .filter(edge => edge.to !== 0 && edge.from !== 0)
                       .map(edge => edge.access)
                       .flat()
                       .sort((a,b) => a-b)
-  const switchesPerDay = {}
+  const switchesPerDay = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
   let seenOtherThanFriday = false
   switches.forEach(change => {
     const day = new Date(change).getDay()
@@ -233,7 +292,7 @@ function getDailyPageSwitches(nodes, edges) {
   let day = 0
   const dailyAverages = Object.keys(switchesPerDay).map((key) => {
     day++
-    return { x: key, y: switchesPerDay[key]}
+    return { x: key, y: switchesPerDay[key], normalized: workHours[key] !== 0 ? Math.round(switchesPerDay[key]/Math.round(workHours[key]/3600000) * 10) / 10 : 0 }
   })
   return dailyAverages
 }
@@ -277,7 +336,7 @@ function getAveragePageSwitchesHourly(nodes, edges) {
     const average = Math.round((duration / length) * 10) / 10
     return { x: key, average, median, min: sorted[0], max: sorted[length-1] }
   })
-  return dailyAverages
+  return { switchesPerHour: dailyAverages, raw: switchesPerDay }
 }
 
 function getUsageByDayStash(usageData, colors) {
