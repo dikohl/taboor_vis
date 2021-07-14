@@ -53,11 +53,11 @@ export default function Visualizations(data) {
     let averageDuration = visitDuration / vis.x
     return {x: vis.x, y: Math.round((visitDuration / 60000) * 10) / 10, averageY: Math.round((averageDuration / 60000) * 10) / 10}
   })
-  console.lot("duration:")
+  console.log("duration:")
   console.log(dur)
-  
+
   let avgDur = dur.map(d => { return {x: d.x, y: d.averageY}})
-  console.lot("avgDur:")
+  console.log("avgDur:")
   console.log(avgDur)
 
   let switches = getDailyPageSwitches(edges).map(s => { return {x: s.x, y: Math.round(s.y*10)/10}})
