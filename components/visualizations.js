@@ -249,7 +249,6 @@ function getDailyPageSwitches(edges) {
       switchesPerDay[minutes] = 1
     }
   })
-
   const quarterAverages = {}
   for (let quarter = 0; quarter <= 1440; quarter=quarter+15) {
     let quarterSwitches = []
@@ -334,7 +333,6 @@ function createLineChart(data, xlabel, ylabel, interpol="linear") {
           labels={({ datum }) => datum.y}
         />
         <VictoryAxis
-          fixLabelOverlap={true}
           label={xlabel}
           style={{
             axisLabel: {padding: 30},
