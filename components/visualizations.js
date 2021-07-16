@@ -181,14 +181,11 @@ function getAverageVisitDuration(nodes, edges) {
         if (enterDate === 0) {
           enterDate = date
         } else {
-          const visit = date - enterDate
-          if (visit < 3600000) {
-            // less than 30 minutes (after 30 min without a switch we assume you're afk)
-            if (visitDurations[node.id]) {
-              visitDurations[node.id].push(visit)
-            } else {
-              visitDurations[node.id] = [visit]
-            }
+          const visit = Math.min(date - enterDate, 180000) // after 30min we assume you're afk, visit time is capped at 30min
+          if (visitDurations[node.id]) {
+            visitDurations[node.id].push(visit)
+          } else {
+            visitDurations[node.id] = [visit]
           }
           enterDate = 0
         }
