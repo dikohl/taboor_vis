@@ -47,43 +47,19 @@ export default function Visualizations(data) {
   console.log("tabs:")
   console.log(quarterTabs)
 
-  let { raw: pageDuration } = getAverageVisitDuration(nodes, edges);
-  let dur = visits.map((vis) => { 
-    let visitDuration = vis.pages.reduce((prev, curr) => prev + pageDuration[curr] || 0, 0)
-    let totalVisits = visits.find(vi => vi.x === vis.x)
-    let averageDuration = visitDuration / totalVisits.y
-    let averageVisit = averageDuration / vis.x
-    return {x: vis.x, y: Math.round((visitDuration / 60000) * 100) / 100, averageY: Math.round((averageDuration / 60000) * 100) / 100, avgVisY: Math.round(averageVisit / 60000 * 100) / 100}
-  })
-  console.log("duration:")
-  console.log(dur)
+  let { avg, total, raw: pageDuration } = getAverageVisitDuration(nodes, edges, visits);
+  let totalDurNEW = Object.keys(total).map(d => { return {x: d, y: Math.round((total[d] / 60000) * 100) / 100}})
+  console.log("totalDur:")
+  console.log(totalDurNEW)
 
-  let avgDur = dur.map(d => { return {x: d.x, y: d.averageY}})
+  let avgDurNEW = Object.keys(avg).map(d => { return {x: d, y: Math.round((avg[d] / 60000) * 100) / 100}})
   console.log("avgDur:")
-  console.log(avgDur)
+  console.log(avgDurNEW)
 
-  let avgVisDur = dur.map(d => { return {x: d.x, y: d.avgVisY}})
-  console.log("avgVisDur:")
-  console.log(avgVisDur)
-
-  let { raw: pageRevisit } = getAverageRevisitDuration(nodes, edges)
-  let revis = visits.map((vis) => { 
-    let totalRevisitTime = vis.pages.reduce((prev, curr) => prev + pageRevisit[curr] || 0, 0)
-    let RevisitTimePerPage = totalRevisitTime / vis.y
-    let RevisitTimePerPagePerVisit = RevisitTimePerPage / vis.x
-    return {x: vis.x, y: Math.round((totalRevisitTime / 60000) * 100) / 100, averageY: Math.round((RevisitTimePerPage / 60000) * 100) / 100, avgVisY: Math.round(RevisitTimePerPagePerVisit / 60000 * 100) / 100}
-  })
-  console.log("revis:")
-  console.log(pageRevisit)
-  console.log(revis)
-
-  let avgRevis = revis.map(d => { return {x: d.x, y: d.averageY}})
+  let { total: totalRevis, avg: avgRevis } = getAverageRevisitDuration(nodes, edges)
+  let avgRevisNEW = Object.keys(avgRevis).map(d => { return {x: d, y: Math.round((avgRevis[d] / 3600000) * 100) / 100}})
   console.log("avgRevis:")
-  console.log(avgRevis)
-
-  let avgPageRevis = revis.map(d => { return {x: d.x, y: d.avgVisY}})
-  console.log("avgPageRevis:")
-  console.log(avgPageRevis)
+  console.log(avgRevisNEW)
 
   let switches = getDailyPageSwitches(edges).map(s => { return {x: s.x, y: Math.round(s.y*10)/10}})
   console.log("switches:")
@@ -97,7 +73,7 @@ export default function Visualizations(data) {
   console.log("opened mark:")
   console.log(opened)
 
-  let { addedName, removedName, openedName } = getUsageByDayStash(data.data.stashUsage, false)
+  let { addded: addedName, removed: removedName, opened: openedName } = getUsageByDayStash(data.data.stashUsage, false)
   console.log("added name:")
   console.log(addedName)
   console.log("removed name:")
@@ -120,21 +96,22 @@ export default function Visualizations(data) {
         a)
         {createLineChart(quarterTabs, "Time (h)", "No. of Tabs (per 15min)", "natural")}
         b)
-        {createLineChart(dur, "Number of Visits", "Total Visit Time (minutes)", "natural")}
-        {createLineChart(avgDur, "Number of Visits", "Average Visit Time per Page (minutes)", "natural")}
-        {createLineChart(avgVisDur, "Number of Visits", "Average Visit Time per Visit per Page (minutes)", "natural")}
+        {createLineChart(totalDurNEW, "Number of Visits", "Total Visit Time (minutes)", "natural")}
+        {createLineChart(avgDurNEW, "Number of Visits", "Average Visit Time per Visit and Page (minutes)", "natural")}
         c)
         {createLineChart(switches, "Time (h)", "Switches (per 15min)", "natural")}
         d)
-        {createLineChart(revis, "Number of Visits", "Total Time between Visits (minutes)", "natural")}
-        {createLineChart(avgRevis, "Number of Visits", "Average Time between Visits per Page (minutes)", "natural")}
-        {createLineChart(avgPageRevis, "Number of Visits", "Average Time between Visits per Visit per Page (minutes)", "natural")}
+        {createLineChart(avgRevisNEW, "Number of Visits", "Average Time between Visits per Visit and Page (hours)", "natural")}
         RQ3:
-        a) with add or remove of pages
-        {createLineChart(added, "Added", "No. of Tabs (per 15min)")}
-        {createLineChart(removed, "Removed", "No. of Tabs (per 15min)")}
-        {createLineChart(opened, "Opened", "No. of Tabs (per 15min)")}
-        b) analyze when multiple pages are closed or opened at once!
+        a) with add or remove of pages. find out average size of groups and number of used colors
+        {createLineChart(added, "Added Mark", "No. of Tabs (per 15min)")}
+        {createLineChart(removed, "Removed Mark", "No. of Tabs (per 15min)")}
+        {createLineChart(opened, "Opened Mark", "No. of Tabs (per 15min)")}
+
+        {createLineChart(added, "Added Named", "No. of Tabs (per 15min)")}
+        {createLineChart(removed, "Removed Named", "No. of Tabs (per 15min)")}
+        {createLineChart(opened, "Opened Named", "No. of Tabs (per 15min)")}
+        b) analyze when multiple pages are closed or opened at once! Opened works with 50ms in between of grouped pages. Close is a jump bigger than 1 in the tabs (might also be a window)
         {createLineChart(quarterTabs, "Time (h)", "No. of Tabs (per 15min)", "natural")}
         c) NO DATA
       </div>
@@ -205,7 +182,7 @@ function getAverageVisitDuration(nodes, edges) {
           enterDate = date
         } else {
           const visit = date - enterDate
-          if (visit < 1800000) {
+          if (visit < 3600000) {
             // less than 30 minutes (after 30 min without a switch we assume you're afk)
             if (visitDurations[node.id]) {
               visitDurations[node.id].push(visit)
@@ -219,11 +196,36 @@ function getAverageVisitDuration(nodes, edges) {
     }
   )
 
-  const pageDurations = Object.keys(visitDurations).reduce((prev, key) => {
+  const pageDurations = Object.keys(visitDurations).reduce((prev, key) => { // id: totalTimeToRevisits
     prev[key] = visitDurations[key].reduce((prev, dur) => prev + dur, 0)
     return prev
   }, {})
-  return { raw: pageDurations }
+
+  const noOfVisits = Object.keys(visitDurations).reduce((prev, key) => { // id: noOfVisits
+    prev[key] = visitDurations[key].length
+    return prev
+  }, {})
+
+  const pagesPerVisits = Object.keys(noOfVisits).reduce((prev, key) => { // noOfVisits: [ids]
+    if (prev[noOfVisits[key]]) {
+      prev[noOfVisits[key]].push(key)
+    } else {
+      prev[noOfVisits[key]] = [key]
+    }
+    return prev
+  }, {})
+
+  const totalDurations = Object.keys(pagesPerVisits).reduce((prev, key) => { // noOfVisits: totalVisitDuration
+    prev[key] = pagesPerVisits[key].reduce((total, curr) => total + pageDurations[curr], 0)
+    return prev
+  }, {})
+
+  const averageDuration = Object.keys(totalDurations).reduce((prev, key) => {
+    prev[key] = totalDurations[key] / key / pagesPerVisits[key].length // total / (noOfVisits * noOfPages)
+    return prev
+  }, {})
+
+  return { avg: averageDuration, total: totalDurations, raw: pageDurations }
 }
 
 function getAverageRevisitDuration(nodes, edges) {
@@ -248,13 +250,10 @@ function getAverageRevisitDuration(nodes, edges) {
           enterDate = date
         } else {
           const visit = date - enterDate
-          if (visit < 1800000) {
-            // less than 30 minutes (after 30 min without a switch we assume you're afk)
-            if (visitDurations[node.id]) {
-              visitDurations[node.id].push(visit)
-            } else {
-              visitDurations[node.id] = [visit]
-            }
+          if (visitDurations[node.id]) {
+            visitDurations[node.id].push(visit)
+          } else {
+            visitDurations[node.id] = [visit]
           }
           enterDate = 0
         }
@@ -262,11 +261,36 @@ function getAverageRevisitDuration(nodes, edges) {
     }
   )
 
-  const pageDurations = Object.keys(visitDurations).reduce((prev, key) => {
+  const pageDurations = Object.keys(visitDurations).reduce((prev, key) => { // id: totalDurationAllVisits
     prev[key] = visitDurations[key].reduce((prev, dur) => prev + dur, 0)
     return prev
   }, {})
-  return { raw: pageDurations }
+
+  const noOfVisits = Object.keys(visitDurations).reduce((prev, key) => { // id: noOfVisits
+    prev[key] = visitDurations[key].length
+    return prev
+  }, {})
+
+  const pagesPerVisits = Object.keys(noOfVisits).reduce((prev, key) => { // noOfVisits: [ids]
+    if (prev[noOfVisits[key]]) {
+      prev[noOfVisits[key]].push(key)
+    } else {
+      prev[noOfVisits[key]] = [key]
+    }
+    return prev
+  }, {})
+
+  const totalDurations = Object.keys(pagesPerVisits).reduce((prev, key) => { // noOfVisits: totalVisitDuration
+    prev[key] = pagesPerVisits[key].reduce((total, curr) => total + pageDurations[curr], 0)
+    return prev
+  }, {})
+
+  const averageDuration = Object.keys(totalDurations).reduce((prev, key) => {
+    prev[Number(key)+1] = totalDurations[key] / key / pagesPerVisits[key].length // total / (noOfVisits * noOfPages)
+    return prev
+  }, {})
+
+  return { avg: averageDuration, total: totalDurations, raw: pageDurations }
 }
 
 function getAverageTabNumber(openTabs) { // time = date ms, id = number of tabs
@@ -363,6 +387,8 @@ function getDailyPageSwitches(edges) {
 
 function getUsageByDayStash(usageData, colors) {
   const data = usageData.filter(use => colors ? use['name'].includes('#') : use['name'].split(";").some(na => !na.includes("#")))
+  console.log("data")
+  console.log(data)
   return getUsageByDay(data)
 }
 
