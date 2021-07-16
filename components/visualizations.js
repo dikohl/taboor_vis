@@ -50,8 +50,10 @@ export default function Visualizations(data) {
   let { raw: pageDuration } = getAverageVisitDuration(nodes, edges);
   let dur = visits.map((vis) => { 
     let visitDuration = vis.pages.reduce((prev, curr) => prev + pageDuration[curr] || 0, 0)
-    let averageDuration = visitDuration / vis.x
-    return {x: vis.x, y: Math.round((visitDuration / 60000) * 10) / 10, averageY: Math.round((averageDuration / 60000) * 10) / 10}
+    let totalVisits = visits.find(vi => vi.x === vis.x)
+    let averageDuration = visitDuration / totalVisits.y
+    let averageVisit = averageDuration / vis.x
+    return {x: vis.x, y: Math.round((visitDuration / 60000) * 100) / 100, averageY: Math.round((averageDuration / 60000) * 100) / 100, avgVisY: Math.round(averageVisit / 60000 * 100) / 100}
   })
   console.log("duration:")
   console.log(dur)
@@ -60,9 +62,48 @@ export default function Visualizations(data) {
   console.log("avgDur:")
   console.log(avgDur)
 
+  let avgVisDur = dur.map(d => { return {x: d.x, y: d.avgVisY}})
+  console.log("avgVisDur:")
+  console.log(avgVisDur)
+
+  let { raw: pageRevisit } = getAverageRevisitDuration(nodes, edges)
+  let revis = visits.map((vis) => { 
+    let totalRevisitTime = vis.pages.reduce((prev, curr) => prev + pageRevisit[curr] || 0, 0)
+    let RevisitTimePerPage = totalRevisitTime / vis.y
+    let RevisitTimePerPagePerVisit = RevisitTimePerPage / vis.x
+    return {x: vis.x, y: Math.round((totalRevisitTime / 60000) * 100) / 100, averageY: Math.round((RevisitTimePerPage / 60000) * 100) / 100, avgVisY: Math.round(RevisitTimePerPagePerVisit / 60000 * 100) / 100}
+  })
+  console.log("revis:")
+  console.log(pageRevisit)
+  console.log(revis)
+
+  let avgRevis = revis.map(d => { return {x: d.x, y: d.averageY}})
+  console.log("avgRevis:")
+  console.log(avgRevis)
+
+  let avgPageRevis = revis.map(d => { return {x: d.x, y: d.avgVisY}})
+  console.log("avgPageRevis:")
+  console.log(avgPageRevis)
+
   let switches = getDailyPageSwitches(edges).map(s => { return {x: s.x, y: Math.round(s.y*10)/10}})
   console.log("switches:")
   console.log(switches)
+
+  let { added, removed, opened } = getUsageByDayStash(data.data.stashUsage, true)
+  console.log("added mark:")
+  console.log(added)
+  console.log("removed mark:")
+  console.log(removed)
+  console.log("opened mark:")
+  console.log(opened)
+
+  let { addedName, removedName, openedName } = getUsageByDayStash(data.data.stashUsage, false)
+  console.log("added name:")
+  console.log(addedName)
+  console.log("removed name:")
+  console.log(removedName)
+  console.log("opened name:")
+  console.log(openedName)
 
   return (
     <div>
@@ -81,11 +122,18 @@ export default function Visualizations(data) {
         b)
         {createLineChart(dur, "Number of Visits", "Total Visit Time (minutes)", "natural")}
         {createLineChart(avgDur, "Number of Visits", "Average Visit Time per Page (minutes)", "natural")}
+        {createLineChart(avgVisDur, "Number of Visits", "Average Visit Time per Visit per Page (minutes)", "natural")}
         c)
         {createLineChart(switches, "Time (h)", "Switches (per 15min)", "natural")}
+        d)
+        {createLineChart(revis, "Number of Visits", "Total Time between Visits (minutes)", "natural")}
+        {createLineChart(avgRevis, "Number of Visits", "Average Time between Visits per Page (minutes)", "natural")}
+        {createLineChart(avgPageRevis, "Number of Visits", "Average Time between Visits per Visit per Page (minutes)", "natural")}
         RQ3:
         a) with add or remove of pages
-        {createLineChart(quarterTabs, "Time (h)", "No. of Tabs (per 15min)", "natural")}
+        {createLineChart(added, "Added", "No. of Tabs (per 15min)")}
+        {createLineChart(removed, "Removed", "No. of Tabs (per 15min)")}
+        {createLineChart(opened, "Opened", "No. of Tabs (per 15min)")}
         b) analyze when multiple pages are closed or opened at once!
         {createLineChart(quarterTabs, "Time (h)", "No. of Tabs (per 15min)", "natural")}
         c) NO DATA
@@ -153,6 +201,49 @@ function getAverageVisitDuration(nodes, edges) {
     node.switch
       .sort((a, b) => a - b)
       .forEach((date) => {
+        if (enterDate === 0) {
+          enterDate = date
+        } else {
+          const visit = date - enterDate
+          if (visit < 1800000) {
+            // less than 30 minutes (after 30 min without a switch we assume you're afk)
+            if (visitDurations[node.id]) {
+              visitDurations[node.id].push(visit)
+            } else {
+              visitDurations[node.id] = [visit]
+            }
+          }
+          enterDate = 0
+        }
+      })
+    }
+  )
+
+  const pageDurations = Object.keys(visitDurations).reduce((prev, key) => {
+    prev[key] = visitDurations[key].reduce((prev, dur) => prev + dur, 0)
+    return prev
+  }, {})
+  return { raw: pageDurations }
+}
+
+function getAverageRevisitDuration(nodes, edges) {
+  let nodeAccesses = nodes
+                .filter(node => node.id !== 0)
+                .map(node => 
+                  { return { switch: edges
+                    .filter(edge => edge.to === node.id || edge.from === node.id)
+                    .map(edge => edge.access).flat(), id: node.id}})
+  const visitDurations = {}
+  nodeAccesses.forEach(node => {
+    let enterDate = 0
+    let first = true
+    node.switch
+      .sort((a, b) => a - b)
+      .forEach((date) => {
+        if (first) {
+          first = false
+          return
+        }
         if (enterDate === 0) {
           enterDate = date
         } else {
@@ -270,55 +361,47 @@ function getDailyPageSwitches(edges) {
   return avg
 }
 
-function getAveragePageSwitchesHourly(nodes, edges) {
-  let switches = edges
-                      .filter(edge => edge.to !== 0 && edge.from !== 0)
-                      .map(edge => edge.access)
-                      .flat()
-                      .sort((a,b) => a-b)
-  const switchesPerDay = {}
-  switches.forEach(change => {
-    const hour = new Date(change).getHours()
-    if (day !== 6 && day !== 0) {
-      if (switchesPerDay[day] && switchesPerDay[day][hour]) {
-        switchesPerDay[day][hour]++
-      } else {
-        if (!switchesPerDay[day]) {
-          switchesPerDay[day] = {}
-        }
-        switchesPerDay[day][hour] = 1
-      }
-    }
-
-  })
-
-  let day = 0
-  const dailyAverages = Object.keys(switchesPerDay).map((key) => {
-    day++
-    const sorted = Object.values(switchesPerDay[key]).sort((a, b) => a-b)
-    const duration = sorted.reduce((prev, curr) => prev + curr, 0)
-    let length = sorted.length
-    let half = Math.floor(length / 2)
-    const median = length === 1 || length % 2 ? sorted[(half)] : (sorted[half] + sorted[half-1]) / 2.0
-    const average = Math.round((duration / length) * 10) / 10
-    return { x: key, average, median, min: sorted[0], max: sorted[length-1] }
-  })
-  return { switchesPerHour: dailyAverages, raw: switchesPerDay }
-}
-
 function getUsageByDayStash(usageData, colors) {
-  const data = usageData.filter(use => colors ? use['name'].startsWith('#') : !use['name'].startsWith('#'))
+  const data = usageData.filter(use => colors ? use['name'].includes('#') : use['name'].split(";").some(na => !na.includes("#")))
   return getUsageByDay(data)
 }
 
 function getUsageByDay(usageData) {
-  let data = usageData.map(groupday).reduce((prev, curr) => { 
-    Object.keys(curr).forEach((key) => prev[key] = (prev[key] || 0) + 1) 
-    return prev}, {}
-  )
-  const minDay = Object.keys(data).reduce((prev, curr) => curr < prev ? curr : prev, Number.MAX_VALUE)
-  data = Object.keys(data).map((key) => {return{x: key-(minDay-1), y: data[key]}})
-  return data
+  let added = usageData.filter(usage => usage.type === "added")
+  let removed = usageData.filter(usage => usage.type === "removed")
+  let opened = usageData.filter(usage => usage.type === "opened")
+  
+  let quarterAdded = getQuarterUsage(added);
+  let quarterRemoved = getQuarterUsage(removed);
+  let quarterOpened = getQuarterUsage(opened);
+
+  return { added: quarterAdded, removed: quarterRemoved, opened: quarterOpened }
+}
+
+function getQuarterUsage(added) {
+  const usagePerMinute = {};
+  added.forEach(add => {
+    const hours = new Date(add.time).getHours();
+    const minutes = hours * 60 + new Date(add.time).getMinutes();
+    if (usagePerMinute[minutes]) {
+      usagePerMinute[minutes]++;
+    } else {
+      usagePerMinute[minutes] = 1;
+    }
+  });
+
+  const quarterUsage = {};
+  for (let quarter = 0; quarter <= 1440; quarter = quarter + 15) {
+    let quarterSwitches = [];
+    for (let minute = 1; minute % 15 !== 0; minute++) {
+      if (usagePerMinute[quarter + minute]) {
+        quarterSwitches.push(usagePerMinute[quarter + minute]);
+      }
+    }
+    quarterUsage[quarter] = quarterSwitches.reduce((curr, prev) => curr + prev, 0);
+  }
+  const sum = Object.keys(quarterUsage).map(key => { return { x: key, y: quarterUsage[key] }; });
+  return sum;
 }
 
 function groupday(value, index, array){
